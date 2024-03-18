@@ -1,3 +1,4 @@
 /myenv
 /.env
 /credentials.json
+/token.json
