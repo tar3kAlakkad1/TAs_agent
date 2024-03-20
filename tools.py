@@ -1,4 +1,4 @@
-# from langchain.agents import tool
+from langchain.agents import tool
 
 # @tool
 class calendar_event:
@@ -21,7 +21,7 @@ import google.oauth2.credentials
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
-def authenticate() -> google.oauth2.credentials.Credentials:
+def authenticate_google_calendar() -> google.oauth2.credentials.Credentials:
     creds = None
     
     if os.path.exists("token.json"):
@@ -39,10 +39,12 @@ def authenticate() -> google.oauth2.credentials.Credentials:
         with open("token.json", "w") as token:
             token.write(creds.to_json())
             
-    return creds
+    return creds        
 
-
-def get_calendar_events(creds: google.oauth2.credentials.Credentials, upcoming_k_events: int) -> list:
+@tool
+def get_calendar_events(upcoming_k_events: int) -> list:
+    """Returns list of upcoming k calendar events"""
+    creds = authenticate_google_calendar()
     all_events = []
     try:
         service = build("calendar", "v3", credentials=creds)
@@ -81,15 +83,15 @@ def get_calendar_events(creds: google.oauth2.credentials.Credentials, upcoming_k
         print(f"An error occurred: {e}")
         return []
 
+TOOLS = [get_calendar_events]
+# def main():
+#     creds = authenticate_google_calendar()
+#     upcoming_events = 10
+#     events = get_calendar_events(creds, upcoming_events)
+#     print(events)
 
-def main():
-    creds = authenticate()
-    upcoming_events = 10
-    events = get_calendar_events(creds, upcoming_events)
-    print(events)
 
-
-if __name__ == "__main__":
-  main()
+# if __name__ == "__main__":
+#   main()
 
     
