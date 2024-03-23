@@ -87,7 +87,7 @@ TOOLS = [get_calendar_events]
 # def main():
 #     creds = authenticate_google_calendar()
 #     upcoming_events = 10
-#     events = get_calendar_events(creds, upcoming_events)
+#     events = get_calendar_events(upcoming_events)
 #     print(events)
 
 
