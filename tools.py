@@ -1,7 +1,15 @@
 from langchain.agents import tool
 from bs4 import BeautifulSoup
 import base64
+import datetime
+import os.path
 
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+import google.oauth2.credentials
 
 class calendar_event:
     def __init__(self, event_time, event_name: str):
@@ -20,16 +28,6 @@ class email_message:
         
     def __repr__(self):
         return f"\n\nFrom: {self.sender}\nDate: {self.date}\nSubject: {self.subject}\nContent:\n\n{self.body}\n\nEnd of email message.\n\n"
-
-import datetime
-import os.path
-
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-import google.oauth2.credentials
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/calendar.readonly", "https://www.googleapis.com/auth/gmail.modify"]
 
@@ -154,6 +152,7 @@ def get_unread_emails(recent_k_emails=10, past_k_days=7):
                 
             try:
                 email_parts = payload['parts']
+                
                 part_one = email_parts[0]
                 body = part_one['body']
                 body_data = body['data']
@@ -164,6 +163,7 @@ def get_unread_emails(recent_k_emails=10, past_k_days=7):
                     
                 soup = BeautifulSoup(body_data, 'lxml')
                 body_content = soup.body()
+                
             except Exception as e:
                 print(f"Could not get email content. This is probably due to an empty email. Error: {e}")
                 body_content = ''
@@ -173,8 +173,7 @@ def get_unread_emails(recent_k_emails=10, past_k_days=7):
             service.users().messages().modify(userId="me", id=msg_id, body={'removeLabelIds': ['UNREAD']}).execute()
     
         print(f"Total emails retrieved: {len(unread_emails)}.")
-        print_emails(unread_emails)
-        
+
     except HttpError as error:
         print(f"An HTTP error occurred: {error}")
         
